@@ -1,3 +1,17 @@
+function Write-ColorizedMessage {
+    param (
+        [string]$Message,
+        [string]$Variable1,
+        [string]$Variable2,
+        [ConsoleColor]$VariableColor = "Green"
+    )
+
+    Write-Host -NoNewline $Message
+    Write-Host $Variable1 -ForegroundColor $VariableColor -NoNewline
+    Write-Host " to " -NoNewline
+    Write-Host $Variable2 -ForegroundColor $VariableColor
+}
+
 function Set-ADUserProperty {
     param (
         [Microsoft.ActiveDirectory.Management.ADUser]$User,
