@@ -1,0 +1,44 @@
+function Set-ADUserProperty {
+    param (
+        [Microsoft.ActiveDirectory.Management.ADUser]$User,
+        [string]$PropertyName,
+        $NewValue
+    )
+    $AdUserProperties = $User | Get-ADUser -Properties *
+    $AvailableParams = Get-Command Set-ADUser | Select-Object -ExpandProperty Parameters
+
+    if ($AvailableParams.keys -notcontains $PropertyName){
+        try {
+            $CurrentValue = $AdUserProperties.$PropertyName
+            if ($CurrentValue -ne $NewValue) {
+                Write-ColorizedMessage "Updating $PropertyName from" $CurrentValue $NewValue
+                $parameters = @{}
+                $parameters[$PropertyName] = $NewValue
+                Set-ADUser -Identity $User -Replace $parameters
+                Write-Host "Success!" -ForegroundColor Green
+            } else {
+                Write-Host "$PropertyName already set to $NewValue" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "Unable to update $PropertyName!" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "Parameter exists"
+        try {
+            $CurrentValue = $AdUserProperties.$PropertyName
+            if ($CurrentValue -ne $NewValue) {
+                Write-ColorizedMessage "Updating $PropertyName from" $CurrentValue $NewValue
+                $prop = @{$PropertyName = $NewValue}
+                Set-ADUser -Identity $User @prop
+                Write-Host "Success!" -ForegroundColor Green
+            } else {
+                Write-Host "$PropertyName already set to $NewValue" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "Unable to update $PropertyName!" -ForegroundColor Red
+        }
+    }
+
+    Write-Host "$PropertyName = " -NoNewline 
+    Write-Host $User.$PropertyName -ForegroundColor Green
+}
